@@ -347,15 +347,9 @@
         $('#recent-emptystate').addClass('very-hidden');
 			}
 
-      function addOrderCards(idx, event_id, ticketData, order, done) {
+      function fetchAttendeeData(idx, order, done) {
         eventjoy.order_attendees(order.ID, {}, function(status, attendeeData) {
-          discountcode = "NONE";
-          if(order.discount_codes && order.discount_codes.length > 0) { discountcode = order.discount_codes[0]; }
-          var promoter = "NONE";
-          if(order.promoter) { promoter = order.promoter; }
-          if(idx == 0) { addPrimaryCard(event_id, ticketData, attendeeData, order, discountcode, promoter); }
-          addSecondaryCard(idx, ticketData, attendeeData, order, discountcode, promoter);
-          if ( done ) done();
+          if ( done ) done(idx, order, attendeeData);
         });
       }
 
@@ -365,11 +359,26 @@
         eventjoy.events_tickets(event_id, {}, function(status, ticketData) {
           window.store.getOrders("prev", 5, localStorage.getItem("last_completed"), function( status, orders ) {
             if(orders && orders.length > 0) {
-              var addedCount = 0;
+              var fetchedCount = 0;
+              var attendeeDataArray = {};
               for(var i in orders) {
-                addOrderCards(i, event_id, ticketData, orders[i], function() {
+                fetchAttendeeData(i, orders[i], function(idx, fetchedOrder, attendeeData) {
+                  // Store this fetched attendee for later use (below)
+                  attendeeDataArray[ fetchedOrder.ID ] = attendeeData;
+
                   // The first time cards are added, ensure the content is shown
-                  if ( addedCount++ == (orders.length-1) ) {
+                  if ( fetchedCount++ == (orders.length-1) ) {
+
+                    for(var j in orders) {
+                      var loopOrder = orders[j];
+                      discountcode = "NONE";
+                      if(loopOrder.discount_codes && loopOrder.discount_codes.length > 0) { discountcode = loopOrder.discount_codes[0]; }
+                      var promoter = "NONE";
+                      if(loopOrder.promoter) { promoter = loopOrder.promoter; }
+                      if(j == 0) { addPrimaryCard(event_id, ticketData, attendeeDataArray[loopOrder.ID], loopOrder, discountcode, promoter); }
+                      addSecondaryCard(j, ticketData, attendeeDataArray[loopOrder.ID], loopOrder, discountcode, promoter);
+                    }
+                    
                     // Ensure cards are ordered correctly
                     for ( var j = 0; j < 5; j++ ) {
                       var element = $(".secondary-card-"+j);
@@ -378,7 +387,7 @@
                     }
 
                     // Hide load screen
-                    console.log('Showing content ('+addedCount+')...');
+                    console.log('Showing content ('+fetchedCount+')...');
                     showContent();
                     if ( done ) done();
                   }
@@ -448,7 +457,7 @@
 
           // Wait for shuffle to complete, then apply new data
           /*$('.ripple-background').removeClass('activate').removeClass('deactivate');*/
-          setTimeout( function() {
+          //setTimeout( function() {
 
             // Trigger audio notification here...
             var themeName = localStorage.getItem("theme_name");
@@ -457,7 +466,7 @@
             if(!numOfMusic) numOfMusic = 12; 
 
             playRandomMusic(themeName, 1, numOfMusic);
-            
+
             // This is where we shuffle the actual DOM elements, and reset the animation
             changeData(function() {
 
@@ -471,7 +480,7 @@
                 /*hideRipple();*/
               //}, 250);
             });
-          }, 800);
+          //}, 400);
         });
 
         var pollTimeout = null;
