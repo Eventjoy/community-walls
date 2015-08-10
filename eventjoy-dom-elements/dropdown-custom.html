@@ -1,0 +1,99 @@
+<link rel="import" "../bower_components/webcomponentsjs/webcomponents.js"/>
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html"/>
+<link rel="import" href="../bower_components/paper-material/paper-material.html"/>
+<link rel="import" href="../bower_components/paper-button/paper-button.html"/>
+<!-- Name of the Custom Element -->
+<dom-module id="dropdown-custom">
+
+  <style>
+    .dropdown-content{
+      border-radius: 2px 2px 2px 2px;
+      -moz-border-radius: 2px 2px 2px 2px;
+      -webkit-border-radius: 2px 2px 2px 2px;
+      padding:0 20px;
+      overflow:visible;
+    }
+    paper-material{
+      background-color: #FFFFFF;
+      padding: 8px;
+    }
+    .paper{
+      background-color: #FFFFFF;
+      padding: 8px;
+    }
+    #item-list{
+      display:  block;
+      list-style: none;
+    }
+    span{
+      color: rgba(0,0,0,.87);
+      
+    }
+    ul{
+      padding: 0;
+    }
+    #item-list li{
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #D1D1D1;
+    }
+    #item-list li a{
+      display:block;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .dropdown-button-flat{
+      color: rgba(0,0,0,.87);
+      margin: 16px;
+    }
+    #list{
+      margin-bottom: 20px;
+    }
+  </style>
+
+<!-- Template Displays a paper-button and paper-material with an embedded iron-dropdown -->
+<template>
+    <paper-button flat class="dropdown-button-flat" on-click="showIronDropdown">{{displayText}}<span style="display:none">{{displayValue}}</span></paper-button>
+    <iron-dropdown id="list" horizontal-align="center" vertical-align="top">
+      <paper-material elevation="4" class="dropdown-content">
+        <ul id="item-list">
+          <template is="dom-repeat" items="{{anArray}}">
+              <li>
+                  <span><a id="clicked" on-click="handleEvent">{{item.eventName}}</a><span style="display:none">{{item.eventId}}</span><span>
+              </li>
+          </template>
+        </ul>
+      </paper-material>
+    </iron-dropdown>
+</template>
+
+<script>
+  Polymer({is: 'dropdown-custom',
+        properties:{
+          // Here we will have to reference this as an-array from the top elements
+          anArray: Array,
+          displayText:{
+            type: String,
+            value: "Select an Event"
+          },
+          displayValue:{
+            type: String,
+            value: "000000"
+          }
+        },
+        handleEvent : function(e){
+          // this.displayText = data;
+          //console.log(e);
+          this.displayValue = e.target.parentNode.children[1].innerText;
+          this.displayText = e.target.text;
+
+
+
+          document.querySelector('#list').close();
+        },
+        showIronDropdown : function(){
+            document.querySelector('#list').open();
+        }
+  });
+</script>
+</dom-module>

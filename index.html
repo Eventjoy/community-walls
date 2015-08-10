@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title>Community Walls | Eventjoy</title>
+
+    <!-- Opengraph -->
+    <meta property="og:title" content="Community Walls by Eventjoy" />
+    <meta property="og:type" content="company" />
+    <meta property="og:site_name" content="Community Walls by Eventjoy" />
+    <meta property="og:url" content="https://staging.eventjoy.com/apps/community-wall/" />
+    <meta property="og:image" content="http://cdn.eventjoy.com.s3.amazonaws.com/apps/community-wall/app_icon_1x.png" />
+    <meta property="og:description" content="Community walls are a free tool to help you showcase new attendees on a beautiful dashboard." />
+    <meta property="fb:app_id" content="652495281455534" />
+
+    <!-- Twitter cards -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@teamEventjoy">
+    <meta name="twitter:title" content="Community Walls | Eventjoy">
+    <meta name="twitter:description" content="Community walls are a free tool to help you showcase new attendees on a beautiful dashboard.">
+    <meta name="twitter:creator" content="@teamEventjoy">
+    <meta name="twitter:image" content="http://cdn.eventjoy.com.s3.amazonaws.com/apps/community-wall/app_icon_1x.png">
+    <meta name="twitter:domain" content="eventjoy.com">
+
+  	<link href='//fonts.googleapis.com/css?family=Roboto:400,500,700' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  	<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  	<script src="js/eventjoy.storage.js"></script>
+  	<script src="js/moment.js"></script>
+  	<script type="text/javascript" src="lib/eventjoy.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/buzz/1.1.10/buzz.min.js"></script>
+  	
+    <!-- Stylesheet main-->
+    <link rel="stylesheet" type="text/css" href="css/main-css.css">
+    
+    <script>
+    </script>
+  
+    <!-- Polymer import -->
+    <link rel="import" href="bower_components/polymer/polymer.html">
+
+  	<!-- Eventjoy Defined Polymer Dom Elements -->
+    <link rel="import" href="eventjoy-dom-elements/onboarding-view.html">
+    <link rel="import" href="eventjoy-dom-elements/main-card.html">
+    <link rel="import" href="eventjoy-dom-elements/secondary-card.html">
+    <link rel="import" href="eventjoy-dom-elements/event-footer.html">
+    <link rel="import" href="eventjoy-dom-elements/settings-view.html">
+  </head>
+
+  <body>
+    <div id="main-content" class="hidden">
+    	<!-- This is where we want to define values dynamically -->
+      <div id="main-card-wrapper">
+        <div class="ripple-background"></div>
+      	<main-card headerimage="" registrationcount="1" ordertotal="$0.00" discountcode="NONE" promoter="NONE" style="display:none" class="incoming"></main-card>
+        <!--<main-card headerimage="" registrationcount="1" ordertotal="$0.00" discountcode="NONE" promoter="NONE" style="display:none" class="incoming"></main-card>-->
+      </div>
+
+    	<div id="recent-activity" class="hidden"><p>RECENT ACTIVITY</p></div>
+      <div id="recent-emptystate" class="very-hidden"><p><b>Sell some more tickets and we'll show you those additional attendees down here &#x1F648;</b></p></div>
+
+      <div id="secondary-card-wrapper"></div>
+      
+        <div id="footer-wrapper">
+    	       <!-- Footer element -->
+      	     <event-footer eventname='' revenue='0'  attendees='0'/>
+        </div>
+    </div>
+
+    <!-- Settings view which is initially hidden -->
+    <settings-view class="hidden"></settings-view>
+    <onboarding-view class="hidden"></onboarding-view>
+    </div>
+    <script type="text/javascript">
+      var currEvent = 0;
+
+    /**
+    * Returns a random integer between min (inclusive) and max (inclusive)
+    * Using Math.round() will give you a non-uniform distribution!
+    */
+    function playRandomMusic(themeName, min, max) {
+      var randNum = Math.floor(Math.random() * (max - min + 1)) + min;
+      var mySound = new buzz.sound( "audios/"+themeName+"/" + randNum, {
+        formats: [ "mp3", "ogg", "aac" ]
+      });
+
+      mySound.play();
+
+      return;
+    }
+
+    function initialiseMusicThemes() {
+      var eventArrays = [];
+      eventArrays.push({"theme_name": "None", "theme_value" : "none"});
+      eventArrays.push({"theme_name": "Animals", "theme_value" : "animals"});
+      eventArrays.push({"theme_name": "Audience", "theme_value" : "audience"});
+      eventArrays.push({"theme_name": "Celebration", "theme_value" : "celebration"});
+      eventArrays.push({"theme_name": "Jurassic Park", "theme_value" : "jurassic_park"});
+      eventArrays.push({"theme_name": "Loud Sounds", "theme_value" : "loud_sounds"});
+      eventArrays.push({"theme_name": "Star Wars", "theme_value" : "star_wars"});
+
+      localStorage.setItem("music_theme_list", JSON.stringify(eventArrays));
+
+      $('dropdown-custom-sounds').attr("an-array-sounds", JSON.stringify(eventArrays));
+      $('settings-view').attr("selected-sound", "jurassic_park");
+    }
+
+      eventjoy.setApiKey('64e86dc7f5f6e99874d53229601f2bef4653');
+      //localStorage.setItem('eventjoy_oauth_token', 'nKw0aWOyH8elGZntjbh79VWRbsoXImTIuohEghi1MD1LXQg++oRa8JnEWaxwkW7U9OlpyRfSb0YeRh6EOr7F0wwA4IhYgUCIp+2mF1leO3/DvIjAN6PeWoTu79BWM4VG')  ;
+
+      function isAuthorized(callback) {
+        if ( localStorage.getItem( 'eventjoy_access_token' ) ) {
+          // We aleady have an access token
+          console.log('found access token: '+localStorage.getItem('eventjoy_access_token'));
+          eventjoy.setAccessToken( localStorage.getItem('eventjoy_access_token') );
+          if ( callback ) callback( true );
+        } else if ( localStorage.getItem( 'eventjoy_oauth_token' ) ) {
+          // No, but we we do have a oauth request token
+          console.log('found oauth token: '+localStorage.getItem('eventjoy_oauth_token'));
+          eventjoy.auth( localStorage.getItem('eventjoy_oauth_token'), function(success, response) {
+            localStorage.setItem( 'eventjoy_access_token', response.access_token);
+            if ( callback ) callback( true );
+          });
+        } else {
+          console.log('no auth found');
+          if ( callback ) callback( false );
+        }
+      }
+
+      var showing = false;
+      function showSettings(){
+        if(!showing){
+          window.showRipple(function() {
+            $('settings-view').removeClass('hidden');
+            $('settings-view').addClass('showing');
+          });
+          showing = true;
+        }else{
+          $('settings-view').removeClass('showing');
+          $('settings-view').addClass('hidden');
+          window.hideRipple();
+          showing = false;
+        }
+      }
+      function processAuth() {
+        initialiseDB();
+        initialiseMusicThemes();
+
+        isAuthorized( function( authorized ) {
+          if ( authorized ) {
+            // Once authorized, fetch all available events
+            eventjoy.events("", {"page[size]" : -1}, function(success, events) {
+              $('onboarding-view #starting').addClass('hidden');
+              $('onboarding-view #authenticate').addClass('hidden');
+              $('onboarding-view #onboarding').addClass('hidden');
+              $('onboarding-view #noevents').addClass('hidden');
+
+              if ( success && events && events.data.length && events.data[0].ID ) {
+                $('onboarding-view #onboarding').removeClass('hidden');
+                // Create event of array and pass it to dropdown
+                var eventArrays = [];
+                events.data.forEach(function(order) {
+                  eventArrays.push({"eventName": order.name, "eventId" : order.ID});
+                });
+
+                $('onboarding-view').attr("event-array", JSON.stringify(eventArrays));
+                $('settings-view').attr("event-array-settings", JSON.stringify(eventArrays));
+              } else {
+                $('onboarding-view #noevents').removeClass('hidden');
+              }
+            });
+          } else {
+            $('onboarding-view #starting').addClass('hidden');
+            $('onboarding-view #onboarding').addClass('hidden');
+            $('onboarding-view #noevents').addClass('hidden');
+            $('onboarding-view #authenticate').removeClass('hidden');
+            /*console.log('triggering login');
+            */
+          }
+        });
+      }
+      
+      window.showOnboarding = (function showOnboarding() {
+        $('onboarding-view').removeClass('hidden');
+        $('onboarding-view').addClass('showing');
+        $('onboarding-view #onboarding-background').removeClass('hiding');
+
+        // Reset all pages
+        $('onboarding-view #loading').addClass('hiding').removeClass('active');
+        $('onboarding-view #starting').removeClass('hidden');
+        $('onboarding-view #authenticate').addClass('hidden');
+        $('onboarding-view #onboarding').addClass('hidden');
+        $('onboarding-view #noevents').addClass('hidden');
+
+        // Check to see if we should authorize or not
+        setTimeout( function() {
+          processAuth();
+        }, 250);
+      });
+      function showLoading() {
+        $('onboarding-view').removeClass('hidden');
+        $('onboarding-view').addClass('showing');
+        $('onboarding-view #onboarding-background').removeClass('hiding');
+        $('onboarding-view .pages').removeClass('hiding');
+
+        $('onboarding-view #onboarding').addClass('hidden');
+        $('onboarding-view #loading').removeClass('hiding').removeClass('hidden').addClass('active');
+      }
+
+      function startLogin() {
+        eventjoy.login(function() {
+          // Reset all pages
+          $('onboarding-view #loading').addClass('hiding').removeClass('active');
+          $('onboarding-view #starting').removeClass('hidden');
+          $('onboarding-view #authenticate').addClass('hidden');
+          $('onboarding-view #onboarding').addClass('hidden');
+          $('onboarding-view #noevents').addClass('hidden');
+
+          processAuth();
+          console.log('login closed');
+        });
+      }
+      function hideOnboarding() {
+        $('onboarding-view').addClass('hidden');
+        $('onboarding-view').removeClass('showing');
+        $('onboarding-view #onboarding').addClass('hidden');
+        $('onboarding-view #loading').addClass('hidden').removeClass('active');
+      }
+
+      function setEventID(ID){
+          currEvent = ID;
+          $('settings-view').attr("selected-event", ID);
+          window.beginProcessingEvent(ID);
+      }
+
+      function settingsChanged(ID, soundPackID){
+        console.log("Event Id "+ ID + " sound pack id "+ soundPackID);
+
+        // Set the sound theme
+        localStorage.setItem("theme_name", soundPackID);
+
+        // Refresh the event
+        if ( ID != currEvent ) {
+          contentShown = false;
+          showLoading();
+          setTimeout( function() {
+            setEventID(ID);
+          }, 250);
+        }
+      }
+
+      var contentTimeout = null;
+      var contentShown = false;
+      function showContent() {
+        clearTimeout( contentTimeout );
+        if ( false == contentShown ) {
+          if ( $('onboarding-view #loading').hasClass('active') ) {
+            $('onboarding-view #onboarding-background').addClass('hiding');
+            $('onboarding-view .pages').addClass('hiding');
+            $('#main-content').removeClass('hidden');
+            setTimeout( function() {
+              hideOnboarding();
+            }, 750);
+            contentShown = true;
+          } else {
+            contentTimeout = setTimeout(showContent, 1000);
+          }
+        }
+      }
+
+      $(document).ready(function() {
+
+    		// if eventID is passed in, it should be grabbed here.(Dropdown)
+    		function getSpecificEvent(event_id) {
+    			eventjoy.events(event_id, {}, function(success, events) {
+    				if ( success && events ) {
+    					if ( events.data ) {
+    						// console.log(events.data);
+    						event_id_for_orders = events.data.ID;
+    						$("event-footer").attr("eventname", events.data.name);
+    						$("event-footer").attr("eventdate", moment(events.data.startdate).format('MMMM D, YYYY'));
+    						if(events.data && events.data.images && events.data.images.bodybg && events.data.images.bodybg[0]) {
+    							$("main-card.incoming").attr("headerimage", events.data.images.bodybg[0]);
+    						}
+    					}
+    				}
+    			});
+    		}
+
+    		function getTicketName(ticket_id, ticketData) {
+				// console.log(ticket_id);
+				// console.log(ticketData);
+				for(var x in ticketData.data) {
+					if(ticket_id == ticketData.data[x].id) {
+						return ticketData.data[x].name;	
+					}
+				}
+				return "";
+			}	
+
+			function addPrimaryCard(event_id, ticketData, attendeeData, order, discountcodes, promoter) {
+				// console.log(ticketData);
+				// console.log(order.ID);
+				// console.log(order.ID);
+				var attendees = [];
+				for(x in attendeeData.data) {
+					// console.log(attendeeData.data[x]);
+					var ticketName = getTicketName(attendeeData.data[x].ticket_id, ticketData);
+					var attendeeDetail = {
+						"name" : attendeeData.data[x].attendee.name,
+						"ticket_name" : ticketName
+					};
+					attendees.push(attendeeDetail);
+				}
+        console.log('Added primary card');
+				// console.log(attendees);
+				$("main-card.incoming").attr("attendeenames", JSON.stringify(attendees));
+				//$("main-card.incoming").attr("registrationcount", order.num_of_attendees);
+        $("main-card.incoming").attr("registrationcount", attendeeData.data.length);
+				$("main-card.incoming").attr("ordertotal", order.total.slice(0, -3));
+				$("main-card.incoming").attr("discountcode", discountcode);
+				$("main-card.incoming").attr("promoter", promoter);
+				$("main-card.incoming").show();
+        $('#main-card').removeClass('very-hidden');
+        $('#main-card-emptystate').addClass('very-hidden');
+				localStorage.setItem("last_completed", order.completed);
+			}
+
+			function addSecondaryCard(idx, ticketData, attendeeData, order, discountcode, promoter) {
+				var element = $(".secondary-card-"+idx);
+        if ( !element.length ) {
+          element = $("<secondary-card class='secondary-card-"+idx+"' registrationcount='' ordertotal='' attendeenames='' discountcode='' promoter=''></secondary-card>");
+          $("#secondary-card-wrapper").append(element);
+        }
+				console.log('Added card secondary-card-'+idx);
+				// console.log(order);
+				var attendees = "";
+				for(x in attendeeData.data) {
+					attendees += attendeeData.data[x].attendee.name + ", ";
+				}
+				//element.attr("registrationcount", order.num_of_attendees);
+        element.attr("registrationcount", attendeeData.data.length);
+				element.attr("ordertotal", order.total.slice(0, -3));
+				element.attr("attendeenames", attendees.slice(0, -2));
+				element.attr("discountcode", discountcode);
+				element.attr("promoter", promoter);
+        $('#recent-activity').removeClass('hidden');
+        $('#recent-emptystate').addClass('very-hidden');
+			}
+
+      function addOrderCards(idx, event_id, ticketData, order, done) {
+        eventjoy.order_attendees(order.ID, {}, function(status, attendeeData) {
+          discountcode = "NONE";
+          if(order.discount_codes && order.discount_codes.length > 0) { discountcode = order.discount_codes[0]; }
+          var promoter = "NONE";
+          if(order.promoter) { promoter = order.promoter; }
+          if(idx == 0) { addPrimaryCard(event_id, ticketData, attendeeData, order, discountcode, promoter); }
+          addSecondaryCard(idx, ticketData, attendeeData, order, discountcode, promoter);
+          if ( done ) done();
+        });
+      }
+
+      function reloadPageWithNewOrder(event_id, done) {
+        var handledCompletion = false;
+        console.log('reloadPageWithNewOrder('+event_id+')');
+        eventjoy.events_tickets(event_id, {}, function(status, ticketData) {
+          window.store.getOrders("prev", 5, localStorage.getItem("last_completed"), function( status, orders ) {
+            if(orders && orders.length > 0) {
+              var addedCount = 0;
+              for(var i in orders) {
+                addOrderCards(i, event_id, ticketData, orders[i], function() {
+                  // The first time cards are added, ensure the content is shown
+                  if ( addedCount++ == (orders.length-1) ) {
+                    // Ensure cards are ordered correctly
+                    for ( var j = 0; j < 5; j++ ) {
+                      var element = $(".secondary-card-"+j);
+                      element.detach();
+                      $("#secondary-card-wrapper").append(element);
+                    }
+
+                    // Hide load screen
+                    console.log('Showing content ('+addedCount+')...');
+                    showContent();
+                    if ( done ) done();
+                  }
+                });
+              }
+
+            } else {
+              if ( status && !orders ) {
+                // If no cards are added, show content so we can display empty state
+                console.log('Showing content...');
+                showContent();
+                if ( done ) done();
+                handledCompletion = true;
+              }
+            }
+          });
+        });
+      }
+
+			function getEventOrders(event_id, pageIndex, pageSize, recurse, complete, itemAdded) {
+        console.log('getEventOrders('+event_id+', '+pageIndex+', '+pageSize+', '+recurse+')');
+				eventjoy.events_orders(event_id, {"page[number]": pageIndex, "page[size]" : pageSize, "sort": "-completed"}, function(success, orders) {
+          console.log('orders.data length: '+orders.data.length);
+					if ( success && orders && orders.data && orders.data.length ) {
+            orders.data.forEach( function(order) {
+              window.store.addOrder(order, function(success, order_id, order) {
+                if ( itemAdded ) itemAdded(success, order);
+              });
+            });
+            console.log('getEventOrders recursing: '+recurse);
+            if ( recurse ) getEventOrders(event_id, pageIndex+1, pageSize, recurse, complete, itemAdded);
+					} else { if ( complete ) complete(); console.log('getEventOrders done!'); }
+          if ( !recurse ) {
+            console.log('reloadPageWithNewOrder no-recurse');
+            reloadPageWithNewOrder(event_id, function() {
+              if ( complete ) complete();
+            });
+          }
+    		});
+    	}
+
+      window.showRipple = (function showRipple(done) {
+        $('.ripple-background').removeClass('activate').removeClass('deactivate');
+        $('.ripple-background').addClass('activate');
+        setTimeout( function() {
+          if ( done ) done();
+        }, 250);
+      });
+
+      window.hideRipple = (function hideRipple() {
+        setTimeout( function() { $('.ripple-background').removeClass('activate').addClass('deactivate'); }, 10);
+        setTimeout( function() { $('.ripple-background').removeClass('deactivate'); }, 250);
+      });
+
+        window.newDataTransition = (function newDataTransition(changeData) {
+          // Begin animation. Slide out main card, and shuffle secondary cards
+          $('#main-card-wrapper .transition').show().removeClass('move-off').removeClass('move-in').addClass('move-right');
+          $('#secondary-card-wrapper .transition').each( function(idx, elem) {
+            setTimeout( function() {
+              $(elem).addClass('move-right');
+            }, 100 * ($('.transition').length-1-idx));
+          });
+
+          setTimeout( function() {
+            $('#main-card-wrapper .transition').show().removeClass('move-right').addClass('move-off');
+          }, 300);
+
+          // Wait for shuffle to complete, then apply new data
+          /*$('.ripple-background').removeClass('activate').removeClass('deactivate');*/
+          setTimeout( function() {
+
+            // Trigger audio notification here...
+            var themeName = localStorage.getItem("theme_name");
+            var numOfMusic = localStorage.getItem("num_of_theme_music");
+            if(!themeName) themeName = "jurassic_park"; 
+            if(!numOfMusic) numOfMusic = 12; 
+
+            playRandomMusic(themeName, 1, numOfMusic);
+            
+            // This is where we shuffle the actual DOM elements, and reset the animation
+            changeData(function() {
+
+              // Complete animation
+              /*showRipple();*/
+              //setTimeout( function() {
+                $('.move-right').removeClass('move-right');
+                $('#main-card-wrapper .transition').show().removeClass('move-off').addClass('move-in');
+
+                // Fade away ripple, then reset
+                /*hideRipple();*/
+              //}, 250);
+            });
+          }, 800);
+        });
+
+        var pollTimeout = null;
+    		window.poll_data_into_database = (function poll_data_into_database(eventID, animate) {
+		   		console.log("Polling for DB!!!");
+          clearTimeout( pollTimeout );
+          var processedNew = false;
+          getEventOrders(eventID, 1, 50, true,
+            function getOrdersComplete() {
+                console.log("Full order fetch complete");
+
+                // Once a full fetch is complete, we can display the total revenue/attendees
+                window.store.getTotalRevenue(function( status, totalRevenue ) {
+                  window.store.getTotalAttendees(function( status, totalAttendees ) {
+                    var footer = $("event-footer");
+                    footer.attr("revenue", totalRevenue).find('.revenue-box').fadeIn();
+                    footer.attr("attendees", totalAttendees).find('.attendee-box').fadeIn();
+                  });
+                });
+
+                // Only begin re-poll when fetching is complete
+                pollTimeout = setTimeout( function() { window.poll_data_into_database(eventID, true); }, 15000 );
+            },
+            function getOrdersFoundNew(success, order) {
+              if(success) {
+                var lastInsertedOrder = localStorage.getItem("last_inserted_order");
+                if(lastInsertedOrder && lastInsertedOrder < order.completed) {
+                  localStorage.setItem("last_inserted_order", order.completed);
+                }
+              }
+              if ( !processedNew ) {
+                processedNew = true;
+                if ( success ) {
+                  console.log("Got new data :)");
+                  // Animate the new data in
+                  if ( animate ) {
+                    console.log('Starting newDataTransition...');
+                    newDataTransition( function(transitionDone) {
+                      console.log('Swapping data (reloadPageWithNewOrder)...');
+                      reloadPageWithNewOrder(eventID, function() {
+                        console.log('Calling transitionDone...');
+                        if ( transitionDone ) transitionDone();
+                      });
+                    });
+                  } else {
+                    reloadPageWithNewOrder(eventID);
+                  }
+                } else {
+                  // Get the latest in DB and compare completed against current one.
+                  // If multiple orders came in, current logic will not advance.
+                  var lastCompleted = localStorage.getItem("last_completed");
+                  var lastInserted = localStorage.getItem("last_inserted_order");
+                  if(lastCompleted && lastInserted && lastCompleted != lastInserted) {
+                    reloadPageWithNewOrder(eventID);
+                  } else {
+                    console.log("No New Data :(");
+                  }
+                }
+              }
+            }
+          );
+			 });
+
+        window.beginProcessingEvent = (function beginProcessingEvent(eventID) {
+          localStorage.setItem("last_completed", "");
+
+          // Reset footer
+          $("event-footer").attr("revenue", 0).find('.revenue-box').hide();
+          $("event-footer").attr("attendees", 0).find('.attendee-box').hide();
+
+          // Reset main card
+          $("main-card.incoming").attr("attendeenames", []);
+          $("main-card.incoming").attr("registrationcount", 0);
+          $("main-card.incoming").attr("ordertotal", 0);
+          $("main-card.incoming").attr("discountcode", "NONE");
+          $("main-card.incoming").attr("promoter", "NONE");
+          $("main-card.incoming").show();
+
+          // Reset secondary cards
+          $('secondary-card').remove();
+          $('#recent-activity').addClass('hidden');
+
+          // Start by showing empty state
+          $('#recent-emptystate').removeClass('very-hidden');
+          $('#main-card').addClass('very-hidden');
+          $('#main-card-emptystate').removeClass('very-hidden');
+
+          window.store.clearOrders();
+          getSpecificEvent(eventID);  
+          getEventOrders(eventID, 1, 5, false, function() {
+            //getEventOrders(eventID, 1, 50, true, null);
+
+            setTimeout( function() {
+              poll_data_into_database(eventID, false);
+            }, 1000);
+          }, null);
+        });
+
+      });
+    </script>
+  </body>
+</html>

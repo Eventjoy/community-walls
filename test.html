@@ -1,0 +1,76 @@
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="js/eventjoy.storage.js"></script>
+	<script type="text/javascript" src="lib/eventjoy.js"></script>
+
+</head>
+<body>
+		<h1>Eventjoy.js Sample</h1>
+		<pre id="fetchOrdersDiv"></pre>
+		<script type="text/javascript">
+			eventjoy.setApiKey('64e86dc7f5f6e99874d53229601f2bef4653');
+			localStorage.setItem('eventjoy_oauth_token', 'nKw0aWOyH8elGZntjbh79VWRbsoXImTIuohEghi1MD1LXQg++oRa8JnEWaxwkW7U9OlpyRfSb0YeRh6EOr7F0wwA4IhYgUCIp+2mF1leO3/DvIjAN6PeWoTu79BWM4VG');
+
+			if ( localStorage.getItem( 'eventjoy_access_token' ) ) {
+				// We aleady have an access token
+				console.log('found access token: '+localStorage.getItem('eventjoy_access_token'));
+				eventjoy.setAccessToken( localStorage.getItem('eventjoy_access_token') );
+			} else if ( localStorage.getItem( 'eventjoy_oauth_token' ) ) {
+				// No, but we we do have a oauth request token
+				console.log('found oauth token: '+localStorage.getItem('eventjoy_oauth_token'));
+				eventjoy.auth( localStorage.getItem('eventjoy_oauth_token'), function(success, response) {
+					localStorage.setItem( 'eventjoy_access_token', response.access_token);
+				});
+			}
+			
+			initialiseDB();
+
+			// Get all mine events
+			var event_id_for_orders = 0;
+			eventjoy.events(null, {}, function(success, events) {
+				if ( success && events ) {
+					if ( events.data.length && events.data[0].ID ) {
+						event_id_for_orders = events.data[0].ID;
+
+						var fetchOrdersDiv = document.getElementById('fetchOrdersDiv');
+
+						fetchOrdersDiv.innerHTML = "Fetching orders for event_id: "+event_id_for_orders+"...";
+						// eventjoy.events_orders(event_id_for_orders, {"page[number]": 1, "page[size]" : -1}, function(success, orders) {
+						// 	if ( success && orders ) {
+						// 		fetchOrdersDiv.innerHTML = JSON.stringify(orders, null, 2);
+						// 		window.store.clearOrders();
+						// 		// do {
+						// 			orders.data.forEach( function(order) {
+						// 				window.store.addOrder(order);
+						// 			});
+						// 		// } while(orders.links.next) 
+						// 		// console.log(orders.links.next);
+						// 	}
+						// 	window.store.getOrders("prev", 5, "", function( status, orders ) {
+						// 		console.log(orders);
+						// 	});
+						// 	window.store.getTotalRevenue(function( status, totalRevenue ) {
+						// 		console.log("Total Revenue: " + totalRevenue);
+						// 	});
+						// 	window.store.getTotalAttendees(function( status, totalAttendees ) {
+						// 		console.log("Total Attendees: " + totalAttendees);
+						// 	});
+						// });
+						window.store.getOrders("prev", 5, "2014-12-16T10:45:42.000Z", function( status, orders ) {
+						// window.store.getOrders("prev", 5, "2015-02-17T06:19:55.000Z", function( status, orders ) {
+						// window.store.getOrders("prev", 5, "", function( status, orders ) {
+							console.log(orders);
+						});
+						window.store.getTotalRevenue(function( status, totalRevenue ) {
+							console.log("Total Revenue: " + totalRevenue);
+						});
+						window.store.getTotalAttendees(function( status, totalAttendees ) {
+							console.log("Total Attendees: " + totalAttendees);
+						});
+					}
+				}
+			});
+		</script>
+</body>
+</html>

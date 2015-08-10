@@ -1,0 +1,124 @@
+<link rel="import" "../bower_components/webcomponentsjs/webcomponents.js"/>
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html"/>
+<link rel="import" href="../bower_components/paper-material/paper-material.html"/>
+<link rel="import" href="../bower_components/paper-button/paper-button.html"/>
+<!-- Name of the Custom Element -->
+<dom-module id="dropdown-custom-sounds">
+
+  <style>
+    .dropdown-content{
+      border-radius: 2px 2px 2px 2px;
+      -moz-border-radius: 2px 2px 2px 2px;
+      -webkit-border-radius: 2px 2px 2px 2px;
+      padding:0 20px;
+      overflow:visible;
+    }
+    paper-material{
+      background-color: #FFFFFF;
+      padding: 8px;
+    }
+    .paper{
+      background-color: #FFFFFF;
+      padding: 8px;
+    }
+    .paper-button, .content.paper-button {
+      padding:0 !important;
+    }
+    #item-list-sounds{
+      display:  block;
+      list-style: none;
+    }
+    span{
+      color: rgba(0,0,0,.87);
+      
+    }
+    ul{
+      padding: 0;
+    }
+    #item-list-sounds li{
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #D1D1D1;
+    }
+    #item-list-sounds li a{
+      display:block;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .dropdown-button-flat-sounds{
+      color: rgba(0,0,0,.87);
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    #list-sounds{
+      margin-bottom: 20px;
+    }
+  </style>
+
+<!-- Template Displays a paper-button and paper-material with an embedded iron-dropdown -->
+<template>
+    <paper-button flat class="dropdown-button-flat-sounds" on-click="showIronDropdown">{{displayTextSounds}}<span style="display:none">{{displayValueSounds}}</span></paper-button>
+    <iron-dropdown id="list-sounds" horizontal-align="center" vertical-align="top">
+        <paper-material elevation="4" class="dropdown-content">
+          <ul id="item-list-sounds">
+            <template is="dom-repeat" items="{{anArraySounds}}">
+              <li>
+                  <span><a id="clicked-sounds" on-click="handleEvent">{{item.theme_name}}</a><span style="display:none">{{item.theme_value}}</span><span>
+              </li>
+            </template>
+          </ul>
+        </paper-material>
+    </iron-dropdown>
+</template>
+
+<script>
+  Polymer({is: 'dropdown-custom-sounds',
+        properties:{
+          // Here we will have to reference this as an-array from the top elements
+          anArraySounds: Array,
+          displayTextSounds:{
+            type: String,
+            value: "Select a Soundpack"
+          },
+          displayValueSounds:{
+            type: String,
+            value: "000000",
+          },
+          currentSound: {
+            type:String,
+            observer: 'onSoundSelected'
+          }
+        },
+        onSoundSelected: function(){
+          //console.log("Sound selected "+ this.currentSound);
+          //console.log("An array of sounds length "+ this.anArraySounds.length);
+          // iterate over the list to find a matching ID and set all values for the view
+            for(var i = 0; i < this.anArraySounds.length; i++){
+              var soundItem = this.anArraySounds[i];
+
+              //console.log(soundItem.theme_value + " : "+ this.currentSound);
+  
+              if(this.currentSound == soundItem.theme_value){
+                this.displayTextSounds = soundItem.theme_name;
+                this.displayValueSounds = soundItem.theme_value;
+
+                //console.log("Sound found in dropdown :) ");
+              }else{
+                //console.log("Sound not found!! :( ");
+              }
+            }
+        },
+        handleEvent : function(e){
+          // this.displayText = data;
+          //console.log(e);
+          this.displayValueSounds = e.target.parentNode.children[1].innerText;
+          this.displayTextSounds = e.target.text;
+
+          document.querySelector('#list-sounds').close();
+        },
+        showIronDropdown : function(){
+            document.querySelector('#list-sounds').open();
+        }
+  });
+</script>
+</dom-module>

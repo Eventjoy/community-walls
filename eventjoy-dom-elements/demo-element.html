@@ -1,0 +1,32 @@
+<link rel="import"
+      href="../bower_components/polymer/polymer.html">
+      
+<dom-module id="demo-element">
+
+<style>
+	.demo-panel{
+		color: #F00;
+	}
+</style>
+
+<template>
+	<div class="demo-panel">Example Element: <span>{{demo}}</span></div>
+</template>
+
+<script>
+    // element registration
+    Polymer({
+      is: "demo-element",
+
+      // add properties and methods on the element's prototype
+      properties: {
+        // declare properties for the element's public API
+        demo: {
+          type: String,
+          value: "This is where dynamic data for the order will show"
+        }
+      }
+    });
+  </script>
+
+</dom-module>

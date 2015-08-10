@@ -1,0 +1,116 @@
+<link rel="import" "../bower_components/webcomponentsjs/webcomponents.js"/>
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html"/>
+<link rel="import" href="../bower_components/paper-material/paper-material.html"/>
+<link rel="import" href="../bower_components/paper-button/paper-button.html"/>
+<!-- Name of the Custom Element -->
+<dom-module id="dropdown-custom-settings">
+
+  <style>
+    .dropdown-content{
+      border-radius: 2px 2px 2px 2px;
+      -moz-border-radius: 2px 2px 2px 2px;
+      -webkit-border-radius: 2px 2px 2px 2px;
+      padding:0 20px;
+      overflow:visible;
+    }
+    paper-material{
+      background-color: #FFFFFF;
+      padding: 8px;
+    }
+    .paper{
+      background-color: #FFFFFF;
+      padding: 8px;
+    }
+    .paper-button, .content.paper-button {
+      padding:0 !important;
+    }
+    #item-list-settings{
+      display:  block;
+      list-style: none;
+    }
+    span{
+      color: rgba(0,0,0,.87);
+      
+    }
+    ul{
+      padding: 0;
+    }
+    #item-list-settings li{
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #D1D1D1;
+    }
+    #item-list-settings li a{
+      display:block;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .dropdown-button-flat-settings{
+      color: rgba(0,0,0,.87);
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    #list-settings{
+      margin-bottom: 20px;
+    }
+  </style>
+
+<!-- Template Displays a paper-button and paper-material with an embedded iron-dropdown -->
+<template>
+    <paper-button flat class="dropdown-button-flat-settings" on-click="showIronDropdown">{{displayTextSettings}}<span style="display:none">{{displayValueSettings}}</span></paper-button>
+    <iron-dropdown id="list-settings" horizontal-align="center" vertical-align="top">
+        <paper-material elevation="4" class="dropdown-content">
+          <ul id="item-list-settings">
+            <template is="dom-repeat" items="{{anArraySettings}}">
+              <li>
+                  <span><a id="clicked-settings" on-click="handleEvent">{{item.eventName}}</a><span style="display:none">{{item.eventId}}</span><span>
+              </li>
+            </template>
+          </ul>
+        </paper-material>
+    </iron-dropdown>
+</template>
+
+<script>
+  Polymer({is: 'dropdown-custom-settings',
+        properties:{
+          // Here we will have to reference this as an-array from the top elements
+          anArraySettings: Array,
+          displayTextSettings:{
+            type: String,
+            value: "Select an Event"
+          },
+          displayValueSettings:{
+            type: String,
+            value: "000000",
+          },
+          currentEvent: {
+            type:String,
+            observer: 'onEventSelected'
+          }
+        },
+        onEventSelected: function(){
+          // iterate over the list to find a matching ID and set all values for the view
+            for(var i = 0; i < this.anArraySettings.length; i++){
+              var eventItem = this.anArraySettings[i];
+  
+              if(this.currentEvent == eventItem.eventId){
+                this.displayTextSettings = eventItem.eventName;
+                this.displayValueSettings = eventItem.eventId;
+              }
+            }
+        },
+        handleEvent : function(e){
+          // this.displayText = data;
+          //console.log(e);
+          this.displayValueSettings = e.target.parentNode.children[1].innerText;
+          this.displayTextSettings = e.target.text;
+
+          document.querySelector('#list-settings').close();
+        },
+        showIronDropdown : function(){
+            document.querySelector('#list-settings').open();
+        }
+  });
+</script>
+</dom-module>

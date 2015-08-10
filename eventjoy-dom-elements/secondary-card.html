@@ -1,0 +1,222 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html"></script>
+<dom-module id="secondary-card">
+
+<style>
+
+  paper-material{
+    height: 100%;
+    width: 100%;
+    float:left;
+    clear:right;
+    background-color: #FFFFFF;
+    -webkit-border-bottom-left-radius: 2px;
+    -webkit-border-bottom-right-radius: 2px;
+    -moz-border-radius-bottomleft: 2px;
+    -moz-border-radius-bottomright: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+  }
+
+  .white{color:#FFFFFF;}
+
+  .small-card{
+    height:100%;
+    position:relative;
+  }
+
+  .fixed-bottom{
+    position: absolute;
+    left:0;
+    bottom:0;
+    width: 100%;
+    height:25%;
+  }
+
+  .upper-case{
+    text-transform: uppercase;
+  }
+
+  .float-left{float:left; clear:right; display:table-cell; vertical-align:middle; }
+  .float-right{float:right; }
+  #card-header{
+    background-color: #FF4081;
+    -webkit-border-top-left-radius: 2px;
+    -webkit-border-top-right-radius: 2px;
+    -moz-border-radius-topleft: 2px;
+    -moz-border-radius-topright: 2px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    height:33%;
+  }
+
+  p {
+    padding:0;margin:0;
+  }
+  .content-area{
+    height:50%;
+    padding:8% 8% 2%;
+    overflow:hidden;
+    font-size: 1.75vh;
+    line-height: 4vh;
+  }
+  .center{
+    text-align: center;
+    display: table-cell; 
+  }
+
+  .transparent-padding{
+    height: 100%;
+    width:24%;
+    padding:0.25%;
+    display: inline-block;
+  }
+  .padded-wrapper{
+    width:100%;
+    margin:0px auto;
+    padding:0% 8%;
+    height:100%;
+    overflow:hidden;
+  }
+
+  .card-content-title{
+    font-size: 1.5vh;
+    line-height: 2.5vh;
+    font-weight: 500;
+    color: rgba(0,0,0,.87);
+  }
+
+  .card-content-text{
+    font-size: 1.5vh;
+    line-height: 2.5vh;
+    font-weight: 500;
+    color: rgba(0,0,0,.54);
+  }
+
+  .fixed-bottom-title{
+    font-size: 10px; 
+    font-weight: 500;
+    height:66%;
+    color: rgba(255,255,255,.87);
+  }
+
+  .metric-title{
+    display:block;
+    padding:0 8%;
+    font-size: 1.75vh;
+    line-height: 4.5vh;
+    font-weight: 500;
+    color: rgba(255,255,255,.87);
+  }
+
+  .metric-description{
+    display:block;
+    padding:0% 8%;
+    font-size: 3vh;
+    line-height: 2vh;
+    font-weight: 400;
+    color: rgba(255,255,255,1);
+  }
+
+</style>
+
+<template>
+  <div class="transparent-padding transition" onclick="/*newDataTransition( function(done) { done(); } );return false;*/">
+    <paper-material elevation="2">
+      <div class="small-card">
+          <div id="card-header">
+            <div>
+              <div class="float-left center fix-six max-six">
+                <div class="metric-title">ATTENDEES</div>
+                <div class="metric-description">{{registrationcount}}</div>
+              </div>
+              <div class="float-right center fix-six max-six">
+                <div class="metric-title">REVENUE</div>
+                <div class="metric-description">{{ordertotal}}</div>
+              </div>
+            </div>
+          </div>
+          <div id="card-content">
+            <div class="content-area">
+              <p>{{attendeenames}}</p>
+            </div>
+            <div class="fixed-bottom">
+              <div class="padded-wrapper">
+                <div class="float-left fix-six max-six">
+                  <div class="card-content-title">DISCOUNT CODE</div>
+                  <div class="card-content-text">{{discountcode}}</div>
+                </div>
+                <div class="float-right fix-six max-six">
+                  <div class="card-content-title">PROMOTER</div>
+                  <div class="card-content-text">{{promoter}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </paper-material>
+  </div>
+</template>
+
+<script>
+    // element registration
+    Polymer({
+      is: "secondary-card",
+
+      factoryImpl: function(registrationcount, ordertotal, attendeenames, discountcode, promoter){
+            this.registrationcount = registrationcountl
+            this.ordertotal = ordertotal;
+            this.attendeenames = attendeenames;
+            this.discountcode = discountcode;
+            this.promoter = promoter;
+        },
+
+      // add properties and methods on the element's prototype
+      properties: {
+        registrationcount:{
+          type: String,
+          value: "4"
+        },
+        ordertotal:{
+          type: String,
+          value: "3,000"
+        },
+        attendeenames:{
+          type: String,
+          value: "John Smith, Jared Jones, Mike Chefly"
+        },
+        discountcode:{
+          type: String,
+          value: "NONE"
+        },
+        promoter:{
+          type: String,
+          value: "NONE"
+        }
+      }
+    });
+
+    /*function testAnimation() {
+      //$('#main-card-wrapper').addClass('move-right');
+      $('#main-card-wrapper .transition').show().removeClass('move-off').removeClass('move-in').addClass('move-right');
+      $('#secondary-card-wrapper .transition').each( function(idx, elem) {
+        setTimeout( function() {
+          $(elem).addClass('move-right');
+        }, 100 * ($('.transition').length-idx));
+        //}, 20 * idx);
+      });
+
+      setTimeout( function() {
+        $('#main-card-wrapper .transition').show().removeClass('move-right').addClass('move-off');
+      }, 650);
+
+      setTimeout( function() {
+        // This is where we shuffle the actual DOM elements, and reset the animation
+        $('.move-right').removeClass('move-right');
+        $('#main-card-wrapper .transition').show().removeClass('move-off').addClass('move-in');
+      }, 1100);
+      return false;
+    }*/
+  </script>
+
+</dom-module>

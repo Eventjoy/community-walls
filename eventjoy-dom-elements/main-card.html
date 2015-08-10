@@ -1,0 +1,194 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html"></script>
+<link rel="import" href="card-list-item.html">
+<dom-module id="main-card">
+
+<style>
+
+ paper-material{
+    position:relative;
+    height:100%;
+    width: 60%;
+    padding: 0;
+    margin: 1.5% auto;
+    background: #FFF;
+    left:20%;
+    right:20%;
+    float: left;
+    clear:both;
+    /*min-width:722px;*/
+  }
+
+  #main-card{
+    height:100%;
+    overflow:hidden;
+  }
+
+  .left-column{
+    position:absolute;
+    left: 0;width:33%;
+    top:0;bottom:0;
+    background-color:#FFFFFF;
+    max-height:100%;
+    overflow:hidden;
+  }
+  .left-column .inner-fade{
+    position:absolute;
+    left:0;top:0;right:0;bottom:0;
+    -webkit-box-shadow: inset 0px -10px 10px 0px #fff;
+    -moz-box-shadow: inset 0px -10px 10px 0px #fff;
+    box-shadow: inset 0px -10px 10px 0px #fff;
+  }
+  .header-image{
+    position:absolute;
+    left: 33%;right:0;
+    top:0;bottom:0;
+    overflow:hidden;
+  }
+  .header-image>img{
+    position:absolute;
+    top:0;left:0;
+    height:100%;
+  }
+
+  .float-left{
+    float:left;
+    background: #FFFFFF;
+  }
+  .float-right{
+    float:right;
+  }
+
+  .center{
+    text-align: center;
+    display: table-cell;
+  }
+  #card-header{
+    padding:8% 4%;
+    position:relative;
+  }
+  #card-header>div { white-space:nowrap; }
+  #secondary-info{
+    clear:both;
+    padding:8% 4%;
+    position:relative;
+  }
+  #secondary-info>div { white-space:nowrap; }
+  #registration-wrapper{
+    padding:8% 4%;
+    position:relative;
+  }
+  .main-card-title{
+    font-size: 1.5vh;
+    line-height: 2vh;
+    font-weight: 700;
+    color: rgba(0,0,0,.87);
+  }
+
+  .metric{
+    color: #FF4081;
+    font-weight: 500;
+    font-size: 4vh;
+    line-height: 5vh;
+  }
+
+  .metric-description{
+    font-size: 1.5vh;
+    line-height: 2vh;
+    font-weight: 500;
+    color: rgba(0,0,0,.54);
+  }
+
+  #main-card-emptystate {
+    position:absolute;
+    top:40%;left:0;
+    width:100%;
+    text-align: center;
+  }
+  #main-card-emptystate.very-hidden {
+    display:none;
+  }
+  #main-card-emptystate>p {
+    display: block;
+    width:100%;
+    text-align: center;
+  }
+
+</style>
+
+<template>
+  <paper-material elevation="2" class="transition">
+      <div id="main-card">
+        <div class="header-image"><img src="{{headerimage}}"></img></div>
+        <!--TODO: set this up to handle all the card style -->
+        <div class="left-column">
+          <div id="card-header">
+              <div class="float-left center fix-six max-six">
+                <div class="main-card-title">ATTENDEES</div>
+                <div class="metric">{{registrationcount}}</div>
+              </div>
+              
+              <div class="float-right center fix-six max-six">
+                <div class="main-card-title">REVENUE</div>
+                <div class="metric">{{ordertotal}}</div>
+              </div>
+          </div>
+          <div id="secondary-info">
+              <div class="float-left center fix-six max-six">
+                <div class="main-card-title">DISCOUNT CODE</div>
+                <div class="metric-description">{{discountcode}}</div>
+              </div>
+              <div class="float-right center fix-six max-six">
+                <div class="main-card-title">PROMOTER</div>
+                <div class="metric-description">{{promoter}}</div>
+              </div>
+          </div>
+          <div id="registration-wrapper">
+    			<!-- Array of Elements -->
+    			<template is="dom-repeat" items="{{attendeenames}}">
+            	<card-list-item attendeename="{{item.name}}" tickettype="{{item.ticket_name}}"></card-list-item> 
+          	</template>
+          </div>
+          <div class="inner-fade"></div>
+        </div>
+      </div>
+      <div id="main-card-emptystate" class="very-hidden center">
+        <p class="center">It's eerily quiet in here. Sell your first ticket then come back and watch the magic happen</p>
+      </div>
+  </paper-material>
+</template>
+
+<script>
+    // element registration
+    Polymer({
+      is: "main-card",
+
+      // add properties and methods on the element's prototype
+      properties: {
+        // declare properties for the element's public API
+        headerimage:{
+          type: String,
+          value: "http://thewowstyle.com/wp-content/uploads/2015/02/1.Landscape-Photography.jpg"
+        },
+        registrationcount:{
+          type: String,
+          value: "6"
+        },
+        ordertotal:{
+          type: String,
+          value: "$100.00"
+        },
+        discountcode:{
+          type: String,
+          value: "NONE"
+        },
+        promoter:{
+          type: String,
+          value: "NONE"
+        },
+        attendeenames: Array
+      }
+    });
+  </script>
+
+</dom-module>

@@ -1,0 +1,156 @@
+<!-- Importing polymer -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
+<dom-module id="event-footer">
+
+	<!-- Styles specific to this footer -->
+	<style>
+		#footer{
+			color: #F44336;
+			width: 100%;
+			background-color: #673AB7;
+			position: absolute;
+			bottom:0;
+			left:0;
+			margin:0px;
+			min-height:8%;
+			max-height:8%;
+			z-index:100;
+		}
+		.vertical-bar{
+			background-color: #FFF;
+			border-right:thin solid #FFF;
+			height: 100%;
+		}
+		.white{ color: #FFF; }
+
+		.float-left{
+			float:left;
+			display: inline-block;
+			padding-left:2vw;
+			padding-top:1.5vh;
+			padding-bottom:1.5vh;
+		}
+		.right-aligned{ float:right; clear:right; }
+		.right-aligned-noclear{float:right;}
+		.float-right{
+			padding:1.5vh 1.5vw 16px 1.5vw;
+			float:right;
+			text-align:right;
+		}
+		.caps{ text-transform: uppercase; }
+
+		.big {
+    		--iron-icon-height: 32px;
+    		--iron-icon-width: 32px;
+  		}
+  		paper-ripple{
+  			color: rgba(255,255,255,.87);
+  		}
+
+  		.big {
+		    font-size: 2.5vh;
+		    line-height: 3vh;
+  		}
+  		.small {
+		    font-size: 1.5vh;
+		    line-height: 2vh;
+  		}
+  		.icon-box {
+  			position:relative;
+  			padding-top:0.5vh;
+  		}
+  		.icon-border {
+  			border-left:1px solid #fff;
+  			position:absolute;left:0;top:1.5vh;bottom:3vh;width:1px;
+  		}
+  		.icon {
+  			padding:1.25vh;
+  			height:5vh;
+  		}
+
+	</style>
+	<!-- Template Setup -->
+	<template>
+		<div id="footer">
+			<div class="float-left">
+				<div class="white big">{{eventname}}</div>
+				<div class="white small">{{eventdate}}</div>
+			</div>
+			<div class="float-right icon-box" onClick="showSettings()">
+				<div class="icon-border"></div>
+				<paper-ripple id="ripple" style="pointer-events: none;"></paper-ripple>
+				<iron-icon class="ripple big white icon" icon="settings"></iron-icon>
+			</div>
+			<div class="vertical-bar"></div>
+			<div class="float-right revenue-box">
+				<div class="right-aligned white caps small">Revenue</div>
+				<div class="right-aligned white big"><span>{{currencysymbol}}</span>{{revenue}}</div>
+			</div>
+			<div class="float-right attendee-box">
+				<div class="right-aligned white caps small">Attendees</div>
+				<div class="right-aligned white big">{{attendees}}</div>
+			</div>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "event-footer",
+
+			factoryImpl: function(eventname, eventdate, attendees, revenue, currencysymbol){
+				this.eventname = eventname;
+				this.eventdate = eventdate;
+				this.attendees = attendees;
+				this.revenue = revenue;
+				this.currencysymbol = currencysymbol;
+			},
+
+			properties: {
+				eventname: {
+					type: String,
+					value: "Karl's Massive Hackathonapalooza",
+					observer: '_eventNameChanged'
+				},
+				eventdate: {
+					type: String,
+					value: "August 16, 2015",
+					observer: '_eventDateChanged'
+				},
+				attendees:{
+					type: String,
+					value: "4000",
+					// observer: '_attendeeCountChanged'
+				},
+				revenue:{
+					type: String,
+					value: "634.50",
+					// observer: '_revenueTotalChanged'
+				},
+				currencysymbol:{
+					type: String,
+					value: "$",
+					observer: '_currencySymbolChanged'
+				}
+			},
+
+			_eventNameChanged: function(newEventName){
+				this.eventname = newEventName;
+			},
+			_eventDateChanged: function(newEventDate){
+				this.eventdate = newEventDate;
+			},
+			// _attendeeCountChanged: function(attendeeCountForOrder, oldCount){
+			// 	this.attendees = oldCount + attendeeCountForOrder;
+			// },
+			// _revenueTotalChanged: function(revenueForOrder, oldTotal){
+			// 	this.revenue = oldTotal + revenueForOrder;
+			// },
+			_currencySymbolChanged: function(newCurrencySymbol){
+				this.currencysymbol = newCurrencySymbol;
+			}
+		});
+	</script>
+</dom-module>

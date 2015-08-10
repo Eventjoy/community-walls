@@ -1,0 +1,156 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<!-- Reusable polymer objects -->
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="dropdown-custom-settings.html">
+<link rel="import" href="dropdown-custom-sounds.html">
+      
+<dom-module id="settings-view">
+
+<style>
+	#settings{
+    /*background-color: rgba(0,0,0,.65);*/
+    height:100%;
+    width:100%;
+    position: absolute;
+    top:0;
+    left:0;
+    z-index:200;
+
+}
+#settings-content{
+  padding:16px;
+}
+
+#cancel-wrapper{
+  float:right;
+  margin: 16px;
+  top:0;
+  right:100%;
+  color:#FFFFFF;
+}
+
+.settings-button{
+    color: #FF4081;;
+}
+
+
+   paper-material{
+      margin:0 auto;
+      width:30%;
+      /*height:300px;*/
+      margin-top: 15%;
+      background:#FFFFFF;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+      min-width:30%;
+    }
+
+
+.big {
+   --iron-icon-height: 32px;
+   --iron-icon-width: 32px;
+}
+buttons{
+  background-color: #FFFFFF;
+}
+
+p, h2 {
+  margin:0;
+  padding:0;
+}
+.color-button {
+    background: #FF4081;
+    color: #FFFFFF;;
+}
+.settings-header {
+  padding:5% 5% 8%;
+  text-align:left;
+}
+.settings-title {
+  padding:0% 5%;
+  text-align:left;
+}
+.settings-value {
+  padding:0% 5% 5%;
+  text-align:left;
+}
+.settings-confirm {
+  padding:0% 5% 5%;
+  text-align:right;
+}
+</style>
+
+<template>
+  <div id="settings">
+        <!-- <div id="cancel-wrapper" onclick="showSettings()">
+          <paper-ripple style="pointer-events: none;"></paper-ripple>
+          <iron-icon class="ripple big" icon="cancel"></iron-icon>
+        </div> -->
+
+      <div id="settings-content-wrapper">
+        <paper-material elevation="4">
+        <div id="settings-content">
+          <div class="settings-header">
+            <h2>CUSTOMIZE</h2>
+          </div>
+          <div class="settings-title">
+            <p><b>Sounds for when a new ticket is sold</b></p>
+          </div>
+          <div class="settings-value">
+            <dropdown-custom-sounds an-array-sounds="{{soundThemesArray}}" current-sound="{{selectedSound}}"></dropdown-custom-sounds>
+          </div>
+          <div class="settings-title">
+            <p><b>Eventjoy Event</b></p>
+          </div>
+          <div class="settings-value">
+            <dropdown-custom-settings an-array-settings="{{eventArraySettings}}" current-event="{{selectedEvent}}"></dropdown-custom-settings>
+          </div>
+          <div class="settings-confirm">
+            <paper-button class="settings-button" on-click="cancelView" flat>Cancel</paper-button>
+            <paper-button class="settings-button" on-click="confirmSelection" flat>Accept</paper-button>
+          </div>
+        </div>
+        </paper-material>
+      </div>
+  </div>
+</template>
+
+<script>
+    // element registration
+    Polymer({
+      is: "settings-view",
+
+      // add properties and methods on the element's prototype
+      properties: {
+        // declare properties for the element's public API
+        soundThemesArray: Array,
+        eventArraySettings: Array,
+        selectedEvent: String,
+        selectedSound: String
+      },
+      cancelView: function(e){
+        showSettings();
+      },
+      confirmSelection: function(e){
+
+        var soundId = document.getElementsByTagName("dropdown-custom-sounds")[0]
+                      .getElementsByTagName("paper-material")[0]
+                      .getElementsByTagName("span")[0].innerText;
+
+        var eventId = document.getElementsByTagName("dropdown-custom-settings")[0]
+                      .getElementsByTagName("paper-material")[0]
+                      .getElementsByTagName("span")[0].innerText;
+
+        settingsChanged(eventId, soundId);
+
+        showSettings();
+      }
+    });
+  </script>
+
+</dom-module>

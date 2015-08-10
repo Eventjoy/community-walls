@@ -1,0 +1,170 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<!-- Reusable polymer objects -->
+<link rel="import" href="../bower_components/paper-material/paper-material.html"></script>
+<link rel="import" href="../bower_components/paper-button/paper-button.html"></script>
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html"></script>
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html"></script>
+<link rel="import" href="dropdown-custom.html"></script>
+<dom-module id="onboarding-view">
+
+<style>
+.onboarding-view.pages, #onboarding-background {
+  height:100%;
+  width:100%;
+  position: absolute;
+  top:0;
+  left:0;
+  opacity:1;
+  z-index:200;
+
+  -webkit-transition: all 600ms ease-in-out;
+  -moz-transition: all 600ms ease-in-out;
+  transition: all 600ms ease-in-out;
+}
+#onboarding-background {
+  background-color: #673AB7;
+  -webkit-transition: all 600ms ease-in-out;
+  -moz-transition: all 600ms ease-in-out;
+  transition: all 600ms ease-in-out;
+}
+#onboarding-background.hiding {
+  top:92%;
+}
+.onboarding-view.pages.hiding {
+  top:75%;
+  opacity:0;
+}
+
+paper-material{
+  margin:0 auto;
+  width:30%;
+  /*height:300px;*/
+  margin-top: 15%;
+  background:#FFFFFF;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  min-width:30%;
+}
+
+#starting.hidden, #authenticate.hidden, #onboarding.hidden, #noevents.hidden, #loading.hidden {
+  display:none;
+}
+
+paper-progress {
+   --paper-progress-active-color: #FF4081;
+}
+
+.color-button {
+    background: #FF4081;
+    color: #FFFFFF;;
+}
+
+.buttons{
+  width: 100%;
+}
+
+.center{
+  margin: 0 auto;
+}
+
+.onboarding-text {
+  padding:5% 5%;
+  text-align:center;
+}
+.onboarding-confirm {
+  padding:0% 5% 10%;
+  text-align:center;
+}
+
+</style>
+
+<script>
+    
+</script>
+<template>
+  <div id="onboarding-background"></div>
+
+  <div class="pages">
+    <paper-material elevation="4">
+
+      <div id="starting">
+        <div class="onboarding-text">
+          <p><b>Hang tight, we're setting things up!</b></p>
+        </div>
+        <div class="onboarding-confirm">
+          <paper-progress indeterminate="true"></paper-progress>
+        </div>
+      </div>
+
+      <div id="authenticate" class="hidden">
+        <div class="onboarding-text">
+          <p><b>Connect your Eventjoy account to visualize your event community</b></p>
+        </div>
+        <div class="onboarding-confirm">
+          <paper-button class="center color-button" onClick="startLogin()" raised>Connect Eventjoy</paper-button>
+        </div>
+      </div>
+
+      <div id="onboarding" class="hidden">
+        <div class="onboarding-text">
+          <p><b>What event do you want to visualize?</b></p>
+          <dropdown-custom class="center dropdown-trigger" an-array="{{eventArray}}"></dropdown-custom>
+        </div>
+        <div class="onboarding-confirm">
+          <paper-button class="center color-button" onClick="onEventSelected()" raised>MAKE IT HAPPEN CAPTAIN</paper-button>
+        </div>
+      </div>
+
+      <div id="noevents" class="hidden">
+        <div class="onboarding-text">
+          <p><b>So this is a little awkward, but we can't set things up because you haven't created any events</b></p>
+        </div>
+        <div class="onboarding-confirm">
+          <paper-button class="center color-button" onClick="location.href='https://www.eventjoy.com/manage/eventinfo?new';return false;" raised>CREATE AN EVENT</paper-button>
+        </div>
+      </div>
+
+      <div id="loading" class="hidden">
+        <div class="onboarding-text">
+          <p><b>Hang tight, we're setting things up!</b></p>
+        </div>
+        <div class="onboarding-confirm">
+          <paper-progress indeterminate="true"></paper-progress>
+        </div>
+      </div>
+    </paper-material>
+  </div>
+</template>
+
+<script>
+    // element registration
+    Polymer({
+      is: "onboarding-view",
+
+      // add properties and methods on the element's prototype
+      properties: {
+        // declare properties for the element's public API
+        eventArray: Array
+      },
+      ready: function() {
+        setTimeout( function() {
+          showOnboarding();
+        }, 50);
+      }
+    });
+
+    function onEventSelected(){
+
+        var eventId = document.getElementsByTagName("dropdown-custom")[0]
+                      .getElementsByTagName("paper-material")[0]
+                      .getElementsByTagName("span")[0].innerText;
+        if ( parseInt(eventId,10) ) {
+          showLoading();
+          //console.log(eventId);
+          setEventID(eventId);
+        }
+    }
+  </script>
+
+</dom-module>

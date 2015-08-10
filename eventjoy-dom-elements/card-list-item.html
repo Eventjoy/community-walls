@@ -1,0 +1,65 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+      
+<dom-module id="card-list-item">
+
+<style>
+  img{
+    float:left;
+    -webkit-border-radius: 24px;
+    -moz-border-radius: 24px;
+    border-radius: 24px; 
+    max-width: 48px;
+    max-height: 48px;
+  }
+  #ticket-description-wrapper{
+    padding-left: 52px;
+    padding-top:4px;
+    width:100%;
+    padding: 8px;
+  }
+
+  #wrapper{
+    width:100%;
+    padding: 8px;
+    float:left;
+  }
+  .name{
+      font-size: 2vh;
+      line-height: 2.5vh;
+      color: rgba(0,0,0,.87);
+  }
+  .ticket{
+      font-size: 1.5vh;
+      line-height: 2vh;
+      color: rgba(0,0,0,.54);
+  }
+</style>
+
+<template>
+  <div id="ticket-description-wrapper">
+    <div class="name">{{attendeename}}</div>
+    <div class="ticket">{{tickettype}}</div>
+  </div>
+</template>
+
+<script>
+    // element registration
+    Polymer({
+      is: "card-list-item",
+
+      // add properties and methods on the element's prototype
+      properties: {
+        // declare properties for the element's public API
+        attendeename:{
+          type: String,
+          value: "John Smith"
+        },
+        tickettype:{
+          type: String,
+          value: "General Admission"
+        }
+      }
+    });
+  </script>
+
+</dom-module>
